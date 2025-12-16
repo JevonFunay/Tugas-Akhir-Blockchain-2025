@@ -21,6 +21,7 @@ export default function Home() {
   const [tokenBalance, setTokenBalance] = useState("0");
   const [nftBalance, setNftBalance] = useState("0");
   const [certificates, setCertificates] = useState([]);
+  const [allCertificates, setAllCertificates] = useState([]);
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -61,8 +62,13 @@ export default function Home() {
       // Load activities
       await loadActivities();
 
-      // Load certificates
+      // Load certificates for user
       await loadCertificates(addr, parseInt(nftCount));
+
+      // Load all certificates if admin
+      if (ownerStatus) {
+        await loadAllCertificates();
+      }
     } catch (error) {
       console.error("Error loading data:", error);
     }
@@ -117,6 +123,27 @@ export default function Home() {
       }
     }
     setCertificates(certs);
+  };
+
+  // Load ALL certificates (for admin view)
+  const loadAllCertificates = async () => {
+    const certs = [];
+    let consecutiveErrors = 0;
+    
+    for (let i = 1; i <= 100 && consecutiveErrors < 3; i++) {
+      try {
+        const details = await getNFTDetails(i);
+        if (details && details.owner) {
+          consecutiveErrors = 0;
+          certs.push(details);
+        } else {
+          consecutiveErrors++;
+        }
+      } catch (e) {
+        consecutiveErrors++;
+      }
+    }
+    setAllCertificates(certs);
   };
 
   // Handle create activity
@@ -264,12 +291,14 @@ export default function Home() {
               >
                 📊 Dashboard
               </button>
-              <button 
-                className={`tab ${activeTab === "certificates" ? "active" : ""}`}
-                onClick={() => setActiveTab("certificates")}
-              >
-                🏆 Sertifikat
-              </button>
+              {!isOwner && (
+                <button 
+                  className={`tab ${activeTab === "certificates" ? "active" : ""}`}
+                  onClick={() => setActiveTab("certificates")}
+                >
+                  🏆 Sertifikat
+                </button>
+              )}
               <button 
                 className={`tab ${activeTab === "activities" ? "active" : ""}`}
                 onClick={() => setActiveTab("activities")}
@@ -513,6 +542,35 @@ export default function Home() {
                       </button>
                     </form>
                   </div>
+                </div>
+
+                {/* All Certificates Section */}
+                <div className="section" style={{ marginTop: "2rem" }}>
+                  <h2 className="section-title">📜 Semua Sertifikat Terbit</h2>
+                  {allCertificates.length === 0 ? (
+                    <div className="empty-state">
+                      <div className="empty-icon">📜</div>
+                      <p>Belum ada sertifikat yang diterbitkan</p>
+                    </div>
+                  ) : (
+                    <div className="certificate-list">
+                      {allCertificates.map((cert) => (
+                        <div key={cert.tokenId} className="certificate-item">
+                          <div className="certificate-icon">🏅</div>
+                          <div className="certificate-info" style={{ flex: 1 }}>
+                            <div className="certificate-id">Token #{cert.tokenId.toString()}</div>
+                            <div className="certificate-uri">{cert.tokenURI}</div>
+                          </div>
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Pemilik:</div>
+                            <div style={{ fontFamily: "monospace", fontSize: "0.875rem" }}>
+                              {cert.owner.slice(0, 6)}...{cert.owner.slice(-4)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </>
             )}
