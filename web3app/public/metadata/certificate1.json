@@ -1,0 +1,9 @@
+{
+  "name": "my wife",
+  "description": "Charlotta",
+  "image": "https://ipfs.io/ipfs/QmappsUjrEb1SD7gX5MwjCqaPKZvGqogGNijHWuNs6RKNe",
+  "attributes": [
+    { "trait_type": "Kategori", "value": "Seminar" },
+    { "trait_type": "Poin Diterima", "value": 100 }
+  ]
+}
