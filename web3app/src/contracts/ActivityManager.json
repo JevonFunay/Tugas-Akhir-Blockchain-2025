@@ -21,12 +21,58 @@
     {
       "anonymous": false,
       "inputs": [
+        { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" }
+      ],
+      "name": "ActivityEnded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "uint256", "name": "activityId", "type": "uint256" },
+        { "indexed": true, "internalType": "address", "name": "student", "type": "address" }
+      ],
+      "name": "StudentAttended",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
         { "indexed": true, "internalType": "uint256", "name": "activityId", "type": "uint256" },
         { "indexed": true, "internalType": "address", "name": "student", "type": "address" },
         { "indexed": false, "internalType": "uint256", "name": "tokenId", "type": "uint256" },
         { "indexed": false, "internalType": "string", "name": "uri", "type": "string" }
       ],
       "name": "CertificateMinted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "uint256", "name": "requestId", "type": "uint256" },
+        { "indexed": true, "internalType": "address", "name": "student", "type": "address" },
+        { "indexed": false, "internalType": "string", "name": "name", "type": "string" }
+      ],
+      "name": "CertificateRequested",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "uint256", "name": "requestId", "type": "uint256" },
+        { "indexed": true, "internalType": "address", "name": "student", "type": "address" },
+        { "indexed": false, "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+      ],
+      "name": "RequestApproved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "uint256", "name": "requestId", "type": "uint256" },
+        { "indexed": true, "internalType": "address", "name": "student", "type": "address" }
+      ],
+      "name": "RequestRejected",
       "type": "event"
     },
     {
@@ -40,28 +86,23 @@
       "type": "event"
     },
     {
-      "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-      "name": "activities",
-      "outputs": [
-        { "internalType": "uint256", "name": "id", "type": "uint256" },
-        { "internalType": "string", "name": "name", "type": "string" },
-        { "internalType": "uint256", "name": "pointReward", "type": "uint256" },
-        { "internalType": "bool", "name": "isActive", "type": "bool" }
-      ],
+      "inputs": [],
+      "name": "owner",
+      "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
       "stateMutability": "view",
       "type": "function"
     },
     {
       "inputs": [],
-      "name": "activityCert",
-      "outputs": [{ "internalType": "contract IActivityCertificate", "name": "", "type": "address" }],
+      "name": "nextActivityId",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
       "stateMutability": "view",
       "type": "function"
     },
     {
       "inputs": [],
-      "name": "campusPoint",
-      "outputs": [{ "internalType": "contract ICampusPoint", "name": "", "type": "address" }],
+      "name": "nextRequestId",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
       "stateMutability": "view",
       "type": "function"
     },
@@ -76,40 +117,88 @@
       "type": "function"
     },
     {
+      "inputs": [
+        { "internalType": "uint256", "name": "activityId", "type": "uint256" },
+        { "internalType": "bool", "name": "active", "type": "bool" }
+      ],
+      "name": "setActivityActive",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "uint256", "name": "activityId", "type": "uint256" }],
+      "name": "endActivity",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [{ "internalType": "uint256", "name": "activityId", "type": "uint256" }],
       "name": "getActivity",
       "outputs": [
         { "internalType": "uint256", "name": "id", "type": "uint256" },
         { "internalType": "string", "name": "name", "type": "string" },
         { "internalType": "uint256", "name": "pointReward", "type": "uint256" },
-        { "internalType": "bool", "name": "isActive", "type": "bool" }
+        { "internalType": "bool", "name": "isActive", "type": "bool" },
+        { "internalType": "bool", "name": "isEnded", "type": "bool" }
       ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "uint256", "name": "activityId", "type": "uint256" }],
+      "name": "markAttendance",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "uint256", "name": "activityId", "type": "uint256" }],
+      "name": "getAttendeesCount",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
       "stateMutability": "view",
       "type": "function"
     },
     {
       "inputs": [
         { "internalType": "uint256", "name": "activityId", "type": "uint256" },
-        { "internalType": "address", "name": "student", "type": "address" },
-        { "internalType": "string", "name": "uri", "type": "string" }
+        { "internalType": "uint256", "name": "index", "type": "uint256" }
       ],
-      "name": "mintCertificate",
+      "name": "getAttendee",
+      "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "uint256", "name": "activityId", "type": "uint256" },
+        { "internalType": "address", "name": "student", "type": "address" }
+      ],
+      "name": "checkAttendance",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "uint256", "name": "activityId", "type": "uint256" },
+        { "internalType": "uint256", "name": "attendeeIndex", "type": "uint256" }
+      ],
+      "name": "rewardAttendee",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "nextActivityId",
-      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "owner",
-      "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-      "stateMutability": "view",
+      "inputs": [
+        { "internalType": "uint256", "name": "activityId", "type": "uint256" },
+        { "internalType": "uint256", "name": "attendeeIndex", "type": "uint256" },
+        { "internalType": "string", "name": "uri", "type": "string" }
+      ],
+      "name": "mintCertificateForAttendee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -125,11 +214,81 @@
     {
       "inputs": [
         { "internalType": "uint256", "name": "activityId", "type": "uint256" },
-        { "internalType": "bool", "name": "active", "type": "bool" }
+        { "internalType": "address", "name": "student", "type": "address" },
+        { "internalType": "string", "name": "uri", "type": "string" }
       ],
-      "name": "setActivityActive",
+      "name": "mintCertificate",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "string", "name": "name", "type": "string" },
+        { "internalType": "string", "name": "description", "type": "string" },
+        { "internalType": "string", "name": "tokenURI", "type": "string" }
+      ],
+      "name": "requestCertificate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "uint256", "name": "requestId", "type": "uint256" }],
+      "name": "getRequest",
+      "outputs": [
+        { "internalType": "uint256", "name": "id", "type": "uint256" },
+        { "internalType": "address", "name": "student", "type": "address" },
+        { "internalType": "string", "name": "name", "type": "string" },
+        { "internalType": "string", "name": "description", "type": "string" },
+        { "internalType": "string", "name": "tokenURI", "type": "string" },
+        { "internalType": "uint8", "name": "status", "type": "uint8" }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "uint256", "name": "requestId", "type": "uint256" }],
+      "name": "approveRequest",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "uint256", "name": "requestId", "type": "uint256" }],
+      "name": "rejectRequest",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "uint256", "name": "", "type": "uint256" },
+        { "internalType": "address", "name": "", "type": "address" }
+      ],
+      "name": "hasAttended",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "uint256", "name": "", "type": "uint256" },
+        { "internalType": "address", "name": "", "type": "address" }
+      ],
+      "name": "hasReceivedReward",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "uint256", "name": "", "type": "uint256" },
+        { "internalType": "address", "name": "", "type": "address" }
+      ],
+      "name": "hasReceivedCertificate",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
       "type": "function"
     }
   ]
